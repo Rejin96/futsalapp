@@ -119,6 +119,39 @@ def change_state(user_id):
     finally:
         session.close()
 
+def show_time_slot_u(futsal_name, date):
+    session = get_session()
+    try:
+        # Fetch the FutsalLocation object by its name
+        futsal = session.query(FutsalLocation).filter_by(name=futsal_name).first()
+
+        # Query the TimeSlot table for the given date and futsal ID
+        timeslots = session.query(TimeSlot).filter_by(date=date, futsal_id=futsal.futsal_id).all()
+        
+        # Format the timeslot data to be returned in the response
+        timeslot_list = [
+            {
+                "slot_id": ts.slot_id,
+                "start_time": str(ts.start_time),
+                "end_time": str(ts.end_time),
+                "state": ts.state,
+                "occupied_by": ts.occupied_by
+            }
+            for ts in timeslots
+        ]
+
+        return {
+            "status": "success",
+            "futsal_id": futsal.futsal_id,
+            "timeslots": timeslot_list
+        }
+    except Exception as e:
+        session.rollback()
+        return {"status": "error", "message": f"An error occurred: {e}"}
+    finally:
+        session.close()
+
+
 def pick_slot(slot_id, user_id, player_count):
     session = get_session()
     try:

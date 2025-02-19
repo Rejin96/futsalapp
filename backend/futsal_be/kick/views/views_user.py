@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from backend.futsal_be.kick.middleware import checkAuth
 from backend.futsal_be.kick.utilities.utilities_user import pick_slot,create_participation_request,handle_participation
-from backend.futsal_be.kick.utilities.utilities_user import change_state,login_u,update_u,getplayer_u
+from backend.futsal_be.kick.utilities.utilities_user import change_state,login_u,update_u,getplayer_u,show_time_slot_u
 from backend.futsal_be.kick.utilities.haversine import calculate_dist
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -102,6 +102,18 @@ def Change_state(request):
             return JsonResponse({"status": "error", "message": "Invalid JSON data!"})
 
 #@checkAuth
+def show_time_slot(request):
+    if request.method == "POST":
+        try:
+            # Parse JSON data
+            data = json.loads(request.body)
+            futsal_name = data.get("futsal_name")
+            date = data.get("date")
+            result = show_time_slot_u(futsal_name,date)
+            return JsonResponse(result)
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "error", "message": "Invalid JSON data!"})
+
 def pick_time_slot(request):
     if request.method == "POST":
         token = request.headers.get('Authorization', '').split(' ')[1]  # 'Bearer <token>'

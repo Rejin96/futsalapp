@@ -1,0 +1,2 @@
+C:/Users/suman/OneDrive/Desktop/FutsalPlayerFinder/playerconnect-cloned-/frontend/android/app/.cxx/Debug/5m35606r/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/suman/OneDrive/Desktop/FutsalPlayerFinder/playerconnect-cloned-/frontend/android/app/.cxx/Debug/5m35606r/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,5 @@
+package com.example.playerconnect
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()

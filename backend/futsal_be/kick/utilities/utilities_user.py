@@ -10,6 +10,7 @@ from backend.futsal_be.kick.createToken import genToken
 from kick.models import User,FutsalLocation,TimeSlot,GameRequest,PlayerParticipation
 from django.conf import settings
 
+
 def get_session():
     return Session_local()
 
@@ -123,13 +124,10 @@ def change_state(user_id):
 def show_time_slot_u(futsal_name, date):
     session = get_session()
     try:
-        # Fetch the FutsalLocation object by its name
         futsal = session.query(FutsalLocation).filter_by(name=futsal_name).first()
 
-        # Query the TimeSlot table for the given date and futsal ID
         timeslots = session.query(TimeSlot).filter_by(date=date, futsal_id=futsal.futsal_id).all()
         
-        # Format the timeslot data to be returned in the response
         timeslot_list = [
             {
                 "slot_id": ts.slot_id,
@@ -200,6 +198,79 @@ def pick_slot(slot_id, user_id, player_count):
     finally:
         session.close()
 
+def querydb(date, time, location):
+    session = get_session()
+    try:
+        # Join GameRequest -> TimeSlot -> FutsalLocation
+        game_requests = (
+            session.query(GameRequest, TimeSlot, FutsalLocation)
+            .join(TimeSlot, GameRequest.slot_id == TimeSlot.slot_id)
+            .join(FutsalLocation, TimeSlot.futsal_id == FutsalLocation.futsal_id)
+            .filter(
+                TimeSlot.date == date,                     # Filter by date
+                TimeSlot.start_time == time,               # Filter by time
+                FutsalLocation.address == location            # Filter by location name
+            )
+            .all()
+        )
+
+        # If no matching game requests found
+        if not game_requests:
+            return {"status": "error", "message": "No game requests found for the given criteria!"}
+
+        # Format the result
+        result = []
+        for gr, ts, fl in game_requests:
+            result.append({
+                "request_id": gr.request_id,
+                "name": fl.name,
+                "address": fl.address,
+                "player_count": gr.player_count,
+                "start_time": str(ts.start_time),
+                "end_time": str(ts.end_time),
+                "google_map_location": fl.google_map_location,
+                #bellow this is commented out
+                
+                # "game_request": {
+                #     "request_id": gr.request_id,
+                #     "slot_id": gr.slot_id,
+                #     "created_by": gr.created_by,
+                #     "player_count": gr.player_count,
+                #     "status": gr.status
+                # },
+                # "time_slot": {
+                #     "slot_id": ts.slot_id,
+                #     "date": str(ts.date),
+                #     "start_time": str(ts.start_time),
+                #     "end_time": str(ts.end_time),
+                #     "state": ts.state,
+                #     "occupied_by": ts.occupied_by
+                # },
+                # "futsal_location": {
+                #     "futsal_id": fl.futsal_id,
+                #     "name": fl.name,
+                #     "address": fl.address,
+                #     "google_map_location": fl.google_map_location,
+                #     "latitude": fl.latitude,
+                #     "longitude": fl.longitude,
+                #     "phone_number": fl.phone_number
+                # }
+                
+            })
+
+        return {
+            "status": "success",
+            "game_requests": result
+        }
+
+    except Exception as e:
+        session.rollback()
+        return {"status": "error", "message": f"An error occurred: {e}"}
+
+    finally:
+        session.close()
+
+
 def update_game_status(request_id):
     session = get_session()
     try:
@@ -245,7 +316,7 @@ def create_participation_request(request_id, user_id):
         )
         session.add(participation)
         session.commit()
-        return {"status": "success", "message": "Participation request created successfully."}
+        return {"status": "success","participant_user_id":user_id, "message": "Participation request created successfully."}
 
     except IntegrityError:
         session.rollback()

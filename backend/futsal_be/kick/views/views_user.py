@@ -3,7 +3,8 @@ from django.http import JsonResponse
 from backend.futsal_be.kick.middleware import checkAuth
 from backend.futsal_be.kick.utilities.utilities_user import pick_slot,create_participation_request,handle_participation
 from backend.futsal_be.kick.utilities.utilities_user import change_state,login_u,update_u,getplayer_u,show_time_slot_u
-from backend.futsal_be.kick.utilities.haversine import calculate_dist
+from backend.futsal_be.kick.utilities.utilities_user import querydb
+from backend.futsal_be.kick.utilities.haversine import calculate_dist,show_using_hav
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
@@ -11,6 +12,7 @@ from backend.futsal_be.kick.authenticate.checkjwt import decryptToken
 import os
 from django.conf import settings
 from werkzeug.utils import secure_filename
+from datetime import datetime
 
 
 @csrf_exempt
@@ -141,13 +143,40 @@ def pick_time_slot(request):
 
     return JsonResponse({"status": "error", "message": "Invalid request method. Use POST."})
 
-def join_request(request):
+def show_game_req(request):
     if request.method == "POST":
         try:
             # Parse JSON data
             data = json.loads(request.body)
+            date = datetime.strptime(data["date"], "%Y-%m-%d").date()
+            time = datetime.strptime(data["time"], "%H:%M:%S").time()
+            location = data.get("location")
+            print(date,time,location)
+            if location:
+                result = querydb(date,time,location)
+            else:
+                longitude = data.get("longitude")
+                latitude = data.get("latitude")
+                result = show_using_hav(date,time,longitude,latitude)
+            return JsonResponse(result)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "error", "message": "Invalid JSON data!"})
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": f"An error occurred: {e}"})
+
+    return JsonResponse({"status": "error", "message": "Invalid request method. Use POST."})
+
+def join_request(request):
+    if request.method == "POST":
+        token = request.headers.get("Authorization", "").split(" ")[1]
+        try:
+            # Parse JSON data
+            data = json.loads(request.body)
             request_id = data.get("request_id")
-            user_id = data.get("user_id")
+            user_id_dict = decryptToken(token)
+            user_id = user_id_dict['user_id']
 
             # Validate input
             if not all([request_id, user_id]):
@@ -161,17 +190,18 @@ def join_request(request):
 
 def handleparticiation(request):
     if request.method == "POST":
+        
         try:
             data = json.loads(request.body)
             request_id = data.get("request_id")
-            user_id = data.get("user_id")
+            participant_user_id = data.get("participant_user_id")
             action = data.get("action")
     
 
-            if not all([request_id,user_id,action ]):
+            if not all([request_id,participant_user_id,action ]):
                 return JsonResponse({"status": "error", "message": "All fields are required!"})
             
-            result = handle_participation(request_id,user_id,action)
+            result = handle_participation(request_id,participant_user_id,action)
             return JsonResponse(result)
             ...
         except json.JSONDecodeError:

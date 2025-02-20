@@ -28,7 +28,7 @@ class FutsalLocation(Base):
     futsal_id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
     address = Column(String(255), nullable=False)
-    google_map_location = Column(String(255),nullable=False)
+    google_map_location = Column(String(500),nullable=False)
     longitude = Column(String(50),nullable=False)
     latitude = Column(String(50),nullable=False)
     phone_number = phone_number = Column(String(15), nullable=False)

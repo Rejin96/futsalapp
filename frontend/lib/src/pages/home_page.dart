@@ -9,7 +9,6 @@ import 'package:playerconnect/src/pages/join_request/join_request.dart';
 import 'package:playerconnect/src/features/authentication/screens/login/login_page.dart';
 import 'package:playerconnect/src/pages/map_page.dart';
 import '../features/shared_preferences/shared_prefs.dart';
-import 'dart:io';
 
 class My_HomePage extends StatefulWidget {
   const My_HomePage({super.key});

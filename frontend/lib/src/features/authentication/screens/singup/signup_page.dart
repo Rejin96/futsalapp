@@ -53,7 +53,7 @@ class _SignUpPageState extends State<SignUpPage> {
     };
 
     var response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/signup/'),
+      Uri.parse('http://192.168.1.68:8000/signup/'),
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,

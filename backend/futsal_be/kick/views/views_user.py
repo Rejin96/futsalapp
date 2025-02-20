@@ -78,6 +78,7 @@ def update(request):
                 # ✅ Secure filename & save
                 image_filename = secure_filename(image.name)
                 image_path = os.path.join(image_folder, image_filename)
+                print(f"ImagePath: {image_path}")
 
                 with open(image_path, "wb") as img_file:
                     for chunk in image.chunks():
@@ -89,6 +90,7 @@ def update(request):
 
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)})
+            
 
 def Change_state(request):
     if request.method == "POST":

@@ -23,7 +23,4 @@ urlpatterns = [
     path('handleparticipation/',views_user.handleparticiation,name='handleparticipation'),
     path('change_state/',views_user.Change_state,name='change_state'), #change from online to offline(need jwt as header)
     path('near_by/',views_user.near_by,name='near_by') #shows what fustal are nearby
-]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

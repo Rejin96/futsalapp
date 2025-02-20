@@ -7,6 +7,7 @@ import 'package:playerconnect/src/pages/home_page.dart';
 import 'dart:convert'; // For JSON encoding
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../services/csrf_services.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -37,17 +38,14 @@ class _LoginpageState extends State<Loginpage> {
 
     // If CSRF token is missing, fetch it from the server
     if (csrfToken == null) {
-      csrfToken = await fetchCsrfToken();
-      if (csrfToken == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to retrieve CSRF token')),
-        );
-        return;
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('CSRF token is missing!')),
+      );
+      return;
     }
 
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/login/'),
+      Uri.parse('http://192.168.1.68:8000/login/'),
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include CSRF token in the header
@@ -115,6 +113,10 @@ print('LocationId: $locationId');
   }
 
   @override
+   void initState() {
+    super.initState();
+    CsrfService.fetchCsrfToken();
+  }
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(

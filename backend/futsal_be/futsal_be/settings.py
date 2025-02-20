@@ -25,7 +25,7 @@ SECRET_KEY = 'secrectkey'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.2.2']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.2.2', '192.168.1.68', '*']
 
 
 # Application definition
@@ -174,7 +174,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ✅ Update MEDIA_ROOT to match your directory choice
-MEDIA_ROOT = os.path.join(BASE_DIR, "image")
-MEDIA_URL = "/media/"  # This is used to serve media files
-
+MEDIA_ROOT = os.path.join(BASE_DIR, 'image')
+MEDIA_URL = '/media/'  # This is used to serve media files
+print("MEDIA ROOT:", MEDIA_ROOT)
 

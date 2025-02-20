@@ -42,7 +42,8 @@ class _My_HomePageState extends State<My_HomePage> {
     }
 
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8000/getplayer/'), // Fetch logged in player
+      Uri.parse(
+          'http://192.168.1.68:8000/getplayer/'), // Fetch logged in player
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -68,6 +69,8 @@ class _My_HomePageState extends State<My_HomePage> {
           userPhone = currentUser['phone_number'] ?? "No Phone";
           userLocation = currentUser['location'] ?? "No Location";
           profilePicturePath = currentUser['image'] ?? "default_image_path";
+          // Cleaned-up profile picture path handling
+         profilePicturePath = currentUser['image']?.replaceAll(RegExp(r"b'|'$"), '') ?? '';
 
           _isOnline = currentUser['status'] ?? 'offline';
         });
@@ -94,7 +97,7 @@ class _My_HomePageState extends State<My_HomePage> {
       return;
     }
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/change_state/'),
+      Uri.parse('http://192.168.1.68:8000/change_state/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -263,19 +266,14 @@ class _My_HomePageState extends State<My_HomePage> {
                               color: Colors.white,
                               width: 2,
                             ),
-                            image: profilePicturePath != null &&
-                                    File(profilePicturePath!).existsSync()
-                                ? DecorationImage(
-                                    image: FileImage(File(profilePicturePath!)),
-                                    fit: BoxFit.cover,
-                                  )
-                                : DecorationImage(
-                                    image: AssetImage(
-                                        'assets/images/futsaluser.jpeg'),
-                                    fit: BoxFit.cover,
-                                  ),
+                            image: DecorationImage(
+                                  image: AssetImage('assets/images/futsaluser.jpeg')
+                                      as ImageProvider,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
+
                         const SizedBox(width: 16),
 
                         // User Details
@@ -324,7 +322,9 @@ class _My_HomePageState extends State<My_HomePage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    _isOnline == 'online' ? "Online" : "Offline",
+                                    _isOnline == 'online'
+                                        ? "Online"
+                                        : "Offline",
                                     style: TextStyle(
                                       fontFamily: 'Kanit',
                                       fontSize: 16,

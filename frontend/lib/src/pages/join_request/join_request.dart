@@ -1,4 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:geolocator/geolocator.dart';
+import 'package:playerconnect/src/pages/join_request/show_request/show_request.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class JoinRequest extends StatefulWidget {
   const JoinRequest({super.key});
@@ -8,163 +13,160 @@ class JoinRequest extends StatefulWidget {
 }
 
 class _JoinRequestState extends State<JoinRequest> {
-  String? selectedDay;
-  String? selectedTimeSlot;
-  String? selectedLocation;
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
 
-  final List<String> days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-  ];
-  final List<String> timeSlots = [
-    "6 AM - 8 AM",
-    "8 AM - 10 AM",
-    "4 PM - 6 PM",
-    "6 PM - 8 PM",
-    "8 PM - 10 PM"
-  ];
-  final List<String> locations = ["Thankot", "Baneshwor", "Sankhamul", "Patan"];
+  @override
+  void dispose() {
+    dateController.dispose();
+    timeController.dispose();
+    locationController.dispose();
+    super.dispose();
+  }
+
+  // 🔹 Function to Fetch Data Based on Condition
+  Future<void> fetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? csrfToken = prefs.getString('csrf_token');
+    if (csrfToken == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to fetch CSRF token")),
+      );
+      return;
+    }
+
+    String date = dateController.text.trim();
+    String time = timeController.text.trim();
+    String? location = locationController.text.trim().isEmpty ? null : locationController.text.trim();
+
+    if (date.isEmpty || time.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Date and Time are required")),
+      );
+      return;
+    }
+
+    Map<String, dynamic> body;
+
+    if (location == null) {
+      // 🔹 Get Location Coordinates if no location is provided
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      body = {
+        "date": date,
+        "time": time,
+        "longitude": position.longitude.toString(),
+        "latitude": position.latitude.toString(),
+        "location": null
+      };
+    } else {
+      // 🔹 Send Selected Location
+      body = {
+        "date": date,
+        "time": time,
+        "location": location
+      };
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.1.68:8000/show_game_req/'),
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+          'Cookie': 'csrftoken=$csrfToken',
+        },
+        body: jsonEncode(body),
+      );
+      print("Request Body: ${jsonEncode(body)}");
+      print("Selected Location: $location");
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        print("Reponse Data:$responseData");
+        print("Type of status: ${responseData["status"].runtimeType}");  // Check the type
+        print(responseData["status"]);
+        print(responseData["distances"]);
+        if (responseData["status"] != null && responseData["status"] == "success") {
+          if(location == null){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ShowRequest(gameRequests: responseData["distances"]),
+            ),
+          );}
+          else{
+             Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ShowRequest(gameRequests: responseData["game_requests"]),
+            ),
+          );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("No game requests found.")),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to fetch game requests.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.grey.shade300,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          title: Text(
-            "Enter the Required Fields",
-            style: TextStyle(color: Colors.grey.shade300),
-          ),
-          backgroundColor: Color(0xFF1B2A41),
-          elevation: 0,
-        ),
-        body: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment.center,
-              radius: 0.9,
-              colors: [
-                Color(0xFF1B2A41),
-                Color(0xFF23395B),
-                Color(0xFF2D4A69),
-              ],
-              stops: [0.3, 0.7, 1.0],
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildDropdown("Select Day", days, selectedDay, (value) {
-                setState(() {
-                  selectedDay = value;
-                });
-              }),
-              SizedBox(height: 16),
-              buildDropdown("Select Time Slot", timeSlots, selectedTimeSlot,
-                  (value) {
-                setState(() {
-                  selectedTimeSlot = value;
-                });
-              }),
-              SizedBox(height: 16),
-              buildDropdown("Select Location", locations, selectedLocation,
-                  (value) {
-                setState(() {
-                  selectedLocation = value;
-                });
-              }),
-              SizedBox(height: 32),
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent.shade400,
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  ),
-                  onPressed: () {
-                    if (selectedDay != null &&
-                        selectedTimeSlot != null &&
-                        selectedLocation != null) {
-                      // Trigger filter logic here
-                      print(
-                          "Filtering requests for $selectedDay, $selectedTimeSlot at $selectedLocation");
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please fill all the fields.")),
-                      );
-                    }
-                  },
-                  child: Text(
-                    "Search Requests",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                  ),
-                ),
+    return Scaffold(
+      backgroundColor: Color(0xFF1B2A41),
+      appBar: AppBar(
+        title: Text("Enter the Required Fields"),
+        backgroundColor: Color(0xFF1B2A41),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildTextField("Enter Date (YYYY-MM-DD)", dateController, TextInputType.datetime),
+            SizedBox(height: 16),
+            buildTextField("Enter Time (HH:MM:SS)", timeController, TextInputType.datetime),
+            SizedBox(height: 16),
+            buildTextField("Enter Location (Optional)", locationController, TextInputType.text),
+            SizedBox(height: 32),
+            Center(
+              child: ElevatedButton(
+                onPressed: fetchData, // Call fetchData when button is clicked
+                child: Text("Search Requests"),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget buildDropdown(String label, List<String> items, String? selectedValue,
-      ValueChanged<String?> onChanged) {
+  Widget buildTextField(String label, TextEditingController controller, TextInputType keyboardType) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-              color: Colors.grey.shade300,
-              fontSize: 16,
-              fontWeight: FontWeight.bold),
-        ),
+        Text(label, style: TextStyle(color: Colors.white, fontSize: 16)),
         SizedBox(height: 8),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade500),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              dropdownColor: Color(0xFF23395B),
-              value: selectedValue,
-              hint: Text(
-                "Choose $label",
-                style: TextStyle(color: Colors.grey.shade400),
-              ),
-              icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade300),
-              isExpanded: true,
-              items: items.map((String item) {
-                return DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(
-                    item,
-                    style: TextStyle(color: Colors.grey.shade200),
-                  ),
-                );
-              }).toList(),
-              onChanged: onChanged,
-            ),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          style: TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.blueGrey[800],
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            hintText: label,
+            hintStyle: TextStyle(color: Colors.white70),
           ),
         ),
       ],

@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from backend.futsal_be.kick.middleware import checkAuth
 from backend.futsal_be.kick.utilities.utilities_user import pick_slot,create_participation_request,handle_participation
 from backend.futsal_be.kick.utilities.utilities_user import change_state,login_u,update_u,getplayer_u,show_time_slot_u
-from backend.futsal_be.kick.utilities.utilities_user import querydb
+from backend.futsal_be.kick.utilities.utilities_user import querydb,see_game_details_u,created_game_details_u
 from backend.futsal_be.kick.utilities.haversine import calculate_dist,show_using_hav
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -185,6 +185,36 @@ def join_request(request):
             result = create_participation_request(request_id,user_id)
             return JsonResponse(result)
             ...
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "error", "message": "Invalid JSON data!"})
+
+def see_game_details(request):
+    if request.method == "POST":
+        token = request.headers.get("Authorization", "").split(" ")[1]
+        try:
+            user_id_dict = decryptToken(token)
+            user_id = user_id_dict['user_id']
+            print(user_id)
+
+            
+            result = see_game_details_u(user_id)
+            return JsonResponse(result)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "error", "message": "Invalid JSON data!"})
+        
+def created_game_details(request):
+    if request.method == "POST":
+        token = request.headers.get("Authorization", "").split(" ")[1]
+        try:
+            user_id_dict = decryptToken(token)
+            user_id = user_id_dict['user_id']
+            print(user_id)
+
+            
+            result = created_game_details_u(user_id)
+            return JsonResponse(result)
+        
         except json.JSONDecodeError:
             return JsonResponse({"status": "error", "message": "Invalid JSON data!"})
 

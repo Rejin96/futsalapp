@@ -22,7 +22,7 @@ class _PlayersearchState extends State<Playersearch> {
   Future<void> fetchPlayers() async {
     try {
       final response =
-          await http.get(Uri.parse('http://10.0.2.2/players/'));
+          await http.get(Uri.parse('http://192.168.1.198/players/'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {

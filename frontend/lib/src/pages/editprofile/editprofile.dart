@@ -43,7 +43,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
    if(_formKey.currentState!.validate()){
     try{
-      var request = http.MultipartRequest('POST', Uri.parse('http://10.0.2.2:8000/update/'),);
+      var request = http.MultipartRequest('POST', Uri.parse('http://192.168.1.198:8000/update/'),);
 
       request.headers.addAll({
         'X-CSRFToken': csrfToken,

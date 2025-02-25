@@ -90,7 +90,7 @@ class ShowRequest extends StatelessWidget {
 
   try {
     final response = await http.post(
-      Uri.parse('http://192.168.1.68:8000/join_request/'),
+      Uri.parse('http://192.168.1.198:8000/join_request/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',  // Send JWT token in Authorization header

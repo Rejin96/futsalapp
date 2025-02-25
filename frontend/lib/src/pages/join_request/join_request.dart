@@ -70,7 +70,7 @@ class _JoinRequestState extends State<JoinRequest> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.68:8000/show_game_req/'),
+        Uri.parse('http://192.168.1.198:8000/show_game_req/'),
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": csrfToken,

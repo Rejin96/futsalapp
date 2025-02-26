@@ -41,8 +41,10 @@ class _My_HomePageState extends State<My_HomePage> {
     }
 
     final response = await http.get(
+      //Uri.parse(
+          //'http://192.168.1.68:8000/getplayer/'), // Fetch logged in player
       Uri.parse(
-          'http://192.168.1.68:8000/getplayer/'), // Fetch logged in player
+          'http://10.0.2.2:8000/getplayer/'), // Fetch logged in player
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -96,7 +98,8 @@ class _My_HomePageState extends State<My_HomePage> {
       return;
     }
     final response = await http.post(
-      Uri.parse('http://192.168.1.68:8000/change_state/'),
+     // Uri.parse('http://192.168.1.68:8000/change_state/'),
+      Uri.parse('http://10.0.2.2:8000/change_state/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',

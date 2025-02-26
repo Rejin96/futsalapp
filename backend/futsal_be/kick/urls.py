@@ -23,6 +23,9 @@ urlpatterns = [
     path('pick_time_slot/',views_user.pick_time_slot,name='pick_time_slot'),
     path('show_game_req/',views_user.show_game_req,name='show_game_req'),
     path('join_request/',views_user.join_request,name='join_request'),
+    #see the game details
+    path('see_game_details/',views_user.see_game_details,name='see_game_details'),
+    path('created_game_details/',views_user.created_game_details,name='created_game_details'),
     path('handleparticipation/',views_user.handleparticiation,name='handleparticipation'),
 ]
 

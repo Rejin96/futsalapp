@@ -25,7 +25,7 @@ SECRET_KEY = 'secrectkey'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.2.2', '192.168.1.68', '*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.2.2', '192.168.1.68', '*', '10.5.5.88','"192.168.1.198"']
 
 
 # Application definition
@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'futsal_be.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'testing',
+        'NAME': 'checking',
         'USER': 'root',
         'PASSWORD': 'password',
         'HOST': 'localhost',  # Or your database host
@@ -125,13 +125,17 @@ AUTH_PASSWORD_VALIDATORS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000", 
     "http://127.0.0.1:8000", 
-    "http://10.0.2.2:8000"
+    "http://10.0.2.2:8000",
+    "http://10.5.5.88:8000",
+    "http://192.168.1.198:8000"
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://10.0.2.2:8000",
+    "http://10.5.5.88:8000",
+    "http://192.168.1.198:8000"
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # Allow credentials like cookies

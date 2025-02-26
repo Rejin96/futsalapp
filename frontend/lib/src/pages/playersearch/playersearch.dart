@@ -23,6 +23,7 @@ class _PlayersearchState extends State<Playersearch> {
     try {
       final response =
           //await http.get(Uri.parse('http://192.168.1.68/players/'));
+         // await http.get(Uri.parse('http://192.168.1.198/players/'));
           await http.get(Uri.parse('http://10.0.2.2/players/'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

@@ -55,6 +55,7 @@ class _CreateRequestState extends State<CreateRequest> {
     try {
       final response = await http.post(
        // Uri.parse('http://192.168.1.68:8000/near_by/'),
+       //Uri.parse('http://192.168.1.198:8000/near_by/'),
         Uri.parse('http://10.0.2.2:8000/near_by/'),
         headers: {
           'Content-Type': 'application/json',

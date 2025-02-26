@@ -77,7 +77,7 @@ def show_using_hav(date,time,longitude,latitude):
             distance = haversine(ref_longitude, ref_latitude, b, a)
             distances.append({
                                 "request_id": gr.request_id,
-                                "name": fl.name,
+                                "futsal_name": fl.name,
                                 "address": fl.address,
                                 "player_count": gr.player_count,
                                 "start_time": str(ts.start_time),

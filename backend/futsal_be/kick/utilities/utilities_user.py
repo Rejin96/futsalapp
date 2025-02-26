@@ -223,7 +223,7 @@ def querydb(date, time, location):
         for gr, ts, fl in game_requests:
             result.append({
                 "request_id": gr.request_id,
-                "name": fl.name,
+                "futsal_name": fl.name,
                 "address": fl.address,
                 "player_count": gr.player_count,
                 "start_time": str(ts.start_time),
@@ -266,6 +266,115 @@ def querydb(date, time, location):
     except Exception as e:
         session.rollback()
         return {"status": "error", "message": f"An error occurred: {e}"}
+
+    finally:
+        session.close()
+
+
+def see_game_details_u(user_id):
+    session = get_session()
+    try:
+        # Step 1: Get request IDs where the user has participated
+        games = session.query(PlayerParticipation).filter_by(user_id=user_id).all()
+        request_ids = [game.request_id for game in games]
+
+        if not request_ids:
+            return {"status": "error", "message": "User has not participated in any games."}
+
+        # Step 2: Get game request details along with creator info, participant status, time details, futsal name, and google map location
+        game_requests = (
+            session.query(GameRequest, User, PlayerParticipation, TimeSlot, FutsalLocation)
+            .join(User, GameRequest.created_by == User.user_id)  # Join with User to get creator's name
+            .join(PlayerParticipation, PlayerParticipation.request_id == GameRequest.request_id)  # Join with PlayerParticipation
+            .join(TimeSlot, TimeSlot.slot_id == GameRequest.slot_id)  # Join with TimeSlot for start and end time
+            .join(FutsalLocation, FutsalLocation.futsal_id == TimeSlot.futsal_id)  # Join with FutsalLocation to get futsal details
+            .filter(GameRequest.request_id.in_(request_ids), PlayerParticipation.user_id == user_id)  # Only for the given user
+            .all()
+        )
+
+        # Step 3: Format the response
+        result = []
+        for gr, creator, participant, ts, futsal in game_requests:
+            result.append({
+                "request_id": gr.request_id,
+                "creator_name": creator.name,  # Fetch the creator's name
+                "num_players": gr.player_count,
+                "game_status": gr.status,
+                "participant_status": participant.status,  # Participant status
+                "start_time": str(ts.start_time),  # Start time from TimeSlot
+                "end_time": str(ts.end_time),  # End time from TimeSlot
+                "futsal_name": futsal.name,  # Futsal name from FutsalLocation
+                "google_map_location": futsal.google_map_location  # Google map location from FutsalLocation
+            })
+
+        return {
+            "status": "success",
+            "game_details": result
+        }
+
+    except Exception as e:
+        session.rollback()
+        return {"status": "error", "message": f"An error occurred: {str(e)}"}
+
+    finally:
+        session.close()
+
+def created_game_details_u(user_id):
+    session = get_session()
+    try:
+        # Step 1: Get all game requests created by the user
+        game_requests = session.query(GameRequest).filter_by(created_by=user_id).all()
+
+        if not game_requests:
+            return {"status": "error", "message": "No game requests created by the user."}
+
+        # Step 2: Fetch the game details along with participant details, futsal name, and time slot info
+        result = []
+        for gr in game_requests:
+            # Fetch participants for the current game request
+            participants = (
+                session.query(PlayerParticipation, User)
+                .join(User, User.user_id == PlayerParticipation.user_id)  # Join with User to get participant details
+                .filter(PlayerParticipation.request_id == gr.request_id)
+                .all()
+            )
+
+            # Fetch the time slot and futsal details for the current game request
+            time_slot = (
+                session.query(TimeSlot, FutsalLocation)
+                .join(FutsalLocation, FutsalLocation.futsal_id == TimeSlot.futsal_id)  # Join with FutsalLocation
+                .filter(TimeSlot.slot_id == gr.slot_id)
+                .first()
+            )
+
+            # Step 3: Format the game details response
+            participants_data = []
+            for participant, user in participants:
+                participants_data.append({
+                    "participant_id": user.user_id,
+                    "participant_name": user.name,
+                    "participant_status": participant.status
+                })
+
+            result.append({
+                "request_id": gr.request_id,
+                "num_players": gr.player_count,
+                "game_status": gr.status,
+                "start_time": str(time_slot[0].start_time),  # TimeSlot start time
+                "end_time": str(time_slot[0].end_time),  # TimeSlot end time
+                "futsal_name": time_slot[1].name,  # Futsal name
+                "google_map_location": time_slot[1].google_map_location,  # Futsal google map location
+                "participants": participants_data  # List of participants and their statuses
+            })
+
+        return {
+            "status": "success",
+            "created_game_details": result
+        }
+
+    except Exception as e:
+        session.rollback()
+        return {"status": "error", "message": f"An error occurred: {str(e)}"}
 
     finally:
         session.close()

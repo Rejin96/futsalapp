@@ -46,6 +46,7 @@ class _LoginpageState extends State<Loginpage> {
 
     final response = await http.post(
      // Uri.parse('http://192.168.1.68:8000/login/'),
+     // Uri.parse('http://192.168.1.198:8000/login/'),
       Uri.parse('http://10.0.2.2:8000/login/'),
       headers: {
         'Content-Type': 'application/json',
@@ -96,8 +97,8 @@ print('LocationId: $locationId');
     try {
       final response = await http.get(
         // Uri.parse('http://192.168.1.68:8000/csrf-token/'),
-        Uri.parse(
-            'http://10.0.2.2:8000/csrf-token/'), // Your CSRF token endpoint
+        //Uri.parse('http://192.168.1.198:8000/csrf-token/'), // Your CSRF token endpoint
+        Uri.parse('http://10.0.2.2:8000/csrf-token'),
       );
 
       if (response.statusCode == 200) {

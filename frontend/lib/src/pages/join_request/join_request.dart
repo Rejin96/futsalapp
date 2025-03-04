@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:playerconnect/src/pages/join_request/show_request/show_request.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../api/urls.dart';
 
 class JoinRequest extends StatefulWidget {
   const JoinRequest({super.key});
@@ -70,9 +71,9 @@ class _JoinRequestState extends State<JoinRequest> {
 
     try {
       final response = await http.post(
-        //Uri.parse('http://192.168.1.68:8000/show_game_req/'),
+        Uri.parse(apiUrls["showgamereq"]!),
         //Uri.parse('http://192.168.1.198:8000/show_game_req/'),
-        Uri.parse('http://10.0.2.2:8000/show_game_req/'),
+        // Uri.parse('http://10.0.2.2:8000/show_game_req/'),
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": csrfToken,

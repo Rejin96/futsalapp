@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:playerconnect/src/pages/create_request/timeslot/timeslot_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../api/urls.dart';
 
 class CreateRequest extends StatefulWidget {
   @override
@@ -54,9 +55,9 @@ class _CreateRequestState extends State<CreateRequest> {
 
     try {
       final response = await http.post(
-       // Uri.parse('http://192.168.1.68:8000/near_by/'),
+       Uri.parse(apiUrls["nearBy"]!),
        //Uri.parse('http://192.168.1.198:8000/near_by/'),
-        Uri.parse('http://10.0.2.2:8000/near_by/'),
+        // Uri.parse('http://10.0.2.2:8000/near_by/'),
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken,

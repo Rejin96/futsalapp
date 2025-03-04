@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:playerconnect/src/pages/game_details/created_game_details/created_game_details.dart';
+import 'package:playerconnect/src/pages/game_details/joined_game_details/joined_game_details.dart';
 import 'package:playerconnect/src/pages/playersearch/playersearch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:playerconnect/src/pages/create_request/create_request.dart';
@@ -9,6 +11,8 @@ import 'package:playerconnect/src/pages/join_request/join_request.dart';
 import 'package:playerconnect/src/features/authentication/screens/login/login_page.dart';
 import 'package:playerconnect/src/pages/map_page.dart';
 import '../features/shared_preferences/shared_prefs.dart';
+import '../api/urls.dart';
+
 
 class My_HomePage extends StatefulWidget {
   const My_HomePage({super.key});
@@ -42,9 +46,9 @@ class _My_HomePageState extends State<My_HomePage> {
 
     final response = await http.get(
       Uri.parse(
-          //'http://192.168.1.68:8000/getplayer/'), // Fetch logged in player
+          apiUrls["getplayer"]!), // Fetch logged in player
         //  'http://192.168.1.198:8000/getplayer/'), // Fetch logged in player
-          'http://10.0.2.2:8000/getplayer/'), // Fetch logged in player
+          // 'http://10.0.2.2:8000/getplayer/'), // Fetch logged in player
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -98,9 +102,9 @@ class _My_HomePageState extends State<My_HomePage> {
       return;
     }
     final response = await http.post(
-     // Uri.parse('http://192.168.1.68:8000/change_state/'),
+     Uri.parse(apiUrls["changestate"]!),
       //Uri.parse('http://192.168.1.198:8000/change_state/'),
-      Uri.parse('http://10.0.2.2:8000/change_state/'),
+      // Uri.parse('http://10.0.2.2:8000/change_state/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -379,6 +383,38 @@ class _My_HomePageState extends State<My_HomePage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => JoinRequest(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(
+                        height: 12,
+                      ),
+                      _buildSteamStyledButton(
+                        context,
+                        "Joined Games",
+                        Icons.sports_soccer,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => JoinedGameDetails(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(
+                        height: 12,
+                      ),
+                      _buildSteamStyledButton(
+                        context,
+                        "My Games",
+                        Icons.checklist,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CreatedGameDetails(),
                             ),
                           );
                         },

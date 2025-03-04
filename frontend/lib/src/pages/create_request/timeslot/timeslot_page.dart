@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:playerconnect/src/pages/home_page.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../api/urls.dart';
 
 class TimeSlotPage extends StatefulWidget {
   final String venue;
@@ -30,9 +31,9 @@ class _TimeSlotPageState extends State<TimeSlotPage> {
   // Fetch time slots from the backend
   Future<void> _fetchTimeSlots() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //final url = Uri.parse('http://192.168.1.68:8000/show_time_slot/');
+    final url = Uri.parse(apiUrls["showtimeslot"]!);
    // final url = Uri.parse('http://192.168.1.198:8000/show_time_slot/');
-    final url = Uri.parse('http://10.0.2.2:8000/show_time_slot/');
+    // final url = Uri.parse('http://10.0.2.2:8000/show_time_slot/');
     String? csrfToken = prefs.getString('csrf_token');
     String? token = prefs.getString('auth_token');
 
@@ -89,9 +90,9 @@ class _TimeSlotPageState extends State<TimeSlotPage> {
 
    Future<void> pickSlot(int slotId, int playerCount) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //final url = Uri.parse('http://192.168.1.68:8000/pick_time_slot/');
+    final url = Uri.parse(apiUrls["picktimeslot"]!);
     //final url = Uri.parse('http://192.168.1.198:8000/pick_time_slot/');
-    final url = Uri.parse('http://10.0.2.2:8000/pick_time_slot/');
+    // final url = Uri.parse('http://10.0.2.2:8000/pick_time_slot/');
     String? csrfToken = prefs.getString('csrf_token');
     String? token = prefs.getString('auth_token');
 

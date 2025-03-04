@@ -5,6 +5,7 @@ import 'dart:io';
 import '../../features/shared_preferences/shared_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import '../../api/urls.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -43,9 +44,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
    if(_formKey.currentState!.validate()){
     try{
       var request = http.MultipartRequest('POST', 
-                    //Uri.parse('http://192.168.1.68:8000/update/'),
+                    Uri.parse(apiUrls["update"]!),
                    // Uri.parse('http://192.168.1.198:8000/update/'),
-                    Uri.parse('http://10.0.2.2:8000/update/'),
+                    // Uri.parse('http://10.0.2.2:8000/update/'),
                     );
 
       request.headers.addAll({

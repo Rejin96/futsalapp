@@ -8,6 +8,7 @@ import 'dart:convert'; // For JSON encoding
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../services/csrf_services.dart';
+import '../../../../api/urls.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -45,9 +46,9 @@ class _LoginpageState extends State<Loginpage> {
     }
 
     final response = await http.post(
-     // Uri.parse('http://192.168.1.68:8000/login/'),
+     // Uri.parse('http://10.0.2.2:8000/login/'),
+      Uri.parse(apiUrls["login"]!),
      // Uri.parse('http://192.168.1.198:8000/login/'),
-      Uri.parse('http://10.0.2.2:8000/login/'),
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken, // Include CSRF token in the header
@@ -98,7 +99,7 @@ print('LocationId: $locationId');
       final response = await http.get(
         // Uri.parse('http://192.168.1.68:8000/csrf-token/'),
         //Uri.parse('http://192.168.1.198:8000/csrf-token/'), // Your CSRF token endpoint
-        Uri.parse('http://10.0.2.2:8000/csrf-token'),
+        Uri.parse(apiUrls["csrftoken"]!),
       );
 
       if (response.statusCode == 200) {

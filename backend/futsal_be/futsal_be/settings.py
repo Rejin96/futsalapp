@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'futsal_be.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'checking',
+        'NAME': 'testing',
         'USER': 'root',
         'PASSWORD': 'password',
         'HOST': 'localhost',  # Or your database host

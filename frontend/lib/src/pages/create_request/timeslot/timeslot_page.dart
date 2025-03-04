@@ -185,7 +185,7 @@ class _TimeSlotPageState extends State<TimeSlotPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("${slot['startTime'] ?? 'No start time'} - ${slot['endTime'] ?? 'No end time'}",
+                            Text("${slot['start_time'] ?? 'No start time'} - ${slot['end_time'] ?? 'No end time'}",
                                 style: TextStyle(color: Colors.white, fontSize: 18)),
                             SizedBox(height: 10),
                             Text("Slot ID: ${slot['slot_id'] ?? 'N/A'}", style: TextStyle(color: Colors.white, fontSize: 16)),

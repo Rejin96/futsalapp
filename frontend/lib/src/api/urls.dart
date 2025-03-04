@@ -13,7 +13,7 @@ const Map<String, String> apiUrls = {
   "showtimeslot": "$baseUrl/show_time_slot/",
   "picktimeslot": "$baseUrl/pick_time_slot/",
   "showgamereq": "$baseUrl/show_game_req/",
-  "joinrequest": "$baseUrl/join_request",
+  "joinrequest": "$baseUrl/join_request/",
   "seegamedetails": "$baseUrl/see_game_details/",
   "createdgamedetails": "$baseUrl/created_game_details/",
   "handleparticipation": "$baseUrl/handleparticipation/",

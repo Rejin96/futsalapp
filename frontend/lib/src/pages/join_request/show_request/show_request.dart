@@ -17,6 +17,7 @@ class ShowRequest extends StatelessWidget {
       appBar: AppBar(
         title: Text("Game Requests"),
         backgroundColor: Color(0xFF1B2A41),
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
@@ -38,7 +39,7 @@ class ShowRequest extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ListTile(
-                      title: Text(request['name'] ?? 'Unknown',
+                      title: Text(request['futsal_name'] ?? 'Unknown',
                               style: TextStyle(color: Colors.white70)),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../api/urls.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:playerconnect/src/api/urls.dart';
 
 class Playersearch extends StatefulWidget {
   const Playersearch({super.key});
@@ -21,15 +22,36 @@ class _PlayersearchState extends State<Playersearch> {
   }
 
   Future<void> fetchPlayers() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+    String? csrfToken = prefs.getString('csrf_token');
+    if (token == null) {
+      print('Token missing!');
+      return;
+    }
+    if (csrfToken == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('CSRF token is missing!')),
+      );
+      return;
+    }
     try {
       final response =
-          await http.get(Uri.parse(apiUrls["getplayer"]!));
-         // await http.get(Uri.parse('http://192.168.1.198/players/'));
-          // await http.get(Uri.parse('http://10.0.2.2/players/'));
+          await http.get(Uri.parse(apiUrls["playerrecommendation"]!),
+           headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'Cookie': 'csrftoken=$csrfToken',
+      },
+          );
+          
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+
         setState(() {
-          players = data['players'];
+          players = data['recommended_players']; // Corrected key
           isLoading = false;
         });
       } else {
@@ -57,15 +79,15 @@ class _PlayersearchState extends State<Playersearch> {
           ),
         ),
         title: Text(
-          "Players",
+          "Recommended Players",
           style: TextStyle(color: Colors.grey.shade300),
         ),
         backgroundColor: Color(0xFF1B2A41),
-        foregroundColor: Colors.grey.shade300,
       ),
       body: SafeArea(
         child: Stack(
           children: [
+            // Background gradient
             Container(
               width: double.infinity,
               height: double.infinity,
@@ -150,11 +172,32 @@ class _PlayersearchState extends State<Playersearch> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          "Contact: ${player['phone number'] ?? 'N/A'}",
+                                          "Contact: ${player['phone_number'] ?? 'N/A'}",
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.white70,
                                           ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.circle,
+                                              size: 12,
+                                              color: player['status'] ==
+                                                      'online'
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              player['status'] ?? 'Unknown',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.white70,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),

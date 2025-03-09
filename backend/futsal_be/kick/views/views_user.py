@@ -6,6 +6,7 @@ from backend.futsal_be.kick.utilities.utilities_user import change_state,login_u
 from backend.futsal_be.kick.utilities.utilities_user import querydb,see_game_details_u,created_game_details_u
 from backend.futsal_be.kick.utilities.haversine import calculate_dist,show_using_hav
 from backend.futsal_be.kick.utilities.cosinealgo import recommend_players
+from backend.futsal_be.kick.utilities.utilities_user import show_recommended_players_u
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
@@ -267,9 +268,10 @@ def recommend_players_view(request):
         print(user_id)
 
         recommended_players = recommend_players(user_id)
-        #result = show_recommended_players_u(recommend_players)
+        result = show_recommended_players_u(recommended_players)
 
-        return JsonResponse({"recommended_players": recommended_players}, status=200)
+        #return JsonResponse({"recommended_players": recommended_players}, status=200)
+        return JsonResponse(result)
 
     except json.JSONDecodeError:
         return JsonResponse({"status":"error", "message": "Invalid JSON data!"})

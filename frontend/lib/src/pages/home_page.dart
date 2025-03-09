@@ -424,7 +424,7 @@ class _My_HomePageState extends State<My_HomePage> {
                       ),
                       _buildSteamStyledButton(
                         context,
-                        "Search for players",
+                        "Get player recommendations",
                         Icons.search,
                         () {
                           Navigator.push(

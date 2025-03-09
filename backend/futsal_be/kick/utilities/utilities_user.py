@@ -475,8 +475,10 @@ def show_recommended_players_u(recommended_players_ids):
 
     try:
         print(recommended_players_ids)
+        print(f"Recommended player IDs: {recommended_players_ids}")
         # Fetch player details by their IDs
         players = session.query(User).filter(User.user_id.in_(recommended_players_ids)).all()
+        print(f"Players found: {players}")
 
         # If no players are found, return an error message
         if not players:

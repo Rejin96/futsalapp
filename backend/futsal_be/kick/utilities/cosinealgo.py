@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from backend.futsal_be.futsal_be.db_setup import Session_local
-from kick.models import PlayerParticipation, User
+from kick.models import PlayerParticipation, User, GameRequest
 
 def get_session():
     return Session_local()
@@ -13,13 +13,25 @@ def get_participation_data():
         participations = session.query(PlayerParticipation).all()
         data = {}
 
+        # Get all game requests and include the creator of the request
+        game_requests = session.query(GameRequest).all()
+
+        # Initialize participation data with the confirmed participations
         for p in participations:
             if p.status == 'confirmed':  # Consider only confirmed games
                 if p.user_id not in data:
                     data[p.user_id] = set()
                 data[p.user_id].add(p.request_id)
 
+        # Add the creator of each game request to the participation data
+        for game_request in game_requests:
+            creator_id = game_request.created_by
+            if creator_id not in data:
+                data[creator_id] = set()
+            data[creator_id].add(game_request.request_id)
+
         return data
+
     except Exception as e:
         print(f"Error fetching participation data: {e}")
         return {}

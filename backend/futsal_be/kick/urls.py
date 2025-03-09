@@ -27,6 +27,8 @@ urlpatterns = [
     path('see_game_details/',views_user.see_game_details,name='see_game_details'),
     path('created_game_details/',views_user.created_game_details,name='created_game_details'),
     path('handleparticipation/',views_user.handleparticiation,name='handleparticipation'),
+    #cosine algorithm
+    path('recommend_players/',views_user.recommend_players_view,name='recommend_players'),
 ]
 
 if settings.DEBUG:

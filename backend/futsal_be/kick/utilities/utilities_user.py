@@ -469,3 +469,40 @@ def handle_participation(request_id, user_id, action):
 
     finally:
         session.close()
+
+def show_recommended_players_u(recommended_players_ids):
+    session = get_session()
+
+    try:
+        print(recommended_players_ids)
+        # Fetch player details by their IDs
+        players = session.query(User).filter(User.user_id.in_(recommended_players_ids)).all()
+
+        # If no players are found, return an error message
+        if not players:
+            return {"status": "error", "message": "No players found"}
+
+        recommended_players_list = [
+            {
+                "user_id": player.user_id,
+                "name": player.name,
+                "phone_number": player.phone_number,
+                "location": player.location,
+                "status": player.status
+            }
+            for player in players
+        ]
+
+        return {
+            "status": "success",
+            "recommended_players": recommended_players_list
+        }
+
+    except Exception as e:
+        session.rollback()
+        # Log the error and return a detailed message
+        print(f"Error occurred: {e}")
+        return {"status": "error", "message": f"An error occurred: {e}"}
+    
+    finally:
+        session.close()

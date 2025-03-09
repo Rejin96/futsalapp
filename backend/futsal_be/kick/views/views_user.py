@@ -5,6 +5,7 @@ from backend.futsal_be.kick.utilities.utilities_user import pick_slot,create_par
 from backend.futsal_be.kick.utilities.utilities_user import change_state,login_u,update_u,getplayer_u,show_time_slot_u
 from backend.futsal_be.kick.utilities.utilities_user import querydb,see_game_details_u,created_game_details_u
 from backend.futsal_be.kick.utilities.haversine import calculate_dist,show_using_hav
+from backend.futsal_be.kick.utilities.cosinealgo import recommend_players
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
@@ -13,6 +14,7 @@ import os
 from django.conf import settings
 from werkzeug.utils import secure_filename
 from datetime import datetime
+import jwt
 
 
 @csrf_exempt
@@ -251,3 +253,23 @@ def near_by(request):
             pass
         except json.JSONDecodeError:
             return JsonResponse({"status": "error", "message": "Invalid JSON data!"})
+
+@csrf_exempt
+def recommend_players_view(request):
+    """API to recommend players based on cosine similarity."""
+    if request.method == "GET":
+        token = request.headers.get("Authorization", "").split(" ")[1]
+
+    try:
+        user_id_dict = decryptToken(token)
+        user_id = user_id_dict['user_id']
+        print(f"Received user_id for recommendation: {user_id}") 
+        print(user_id)
+
+        recommended_players = recommend_players(user_id)
+        #result = show_recommended_players_u(recommend_players)
+
+        return JsonResponse({"recommended_players": recommended_players}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"status":"error", "message": "Invalid JSON data!"})

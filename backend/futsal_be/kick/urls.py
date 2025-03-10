@@ -29,6 +29,9 @@ urlpatterns = [
     path('handleparticipation/',views_user.handleparticiation,name='handleparticipation'),
     #cosine algorithm
     path('recommend_players/',views_user.recommend_players_view,name='recommend_players'),
+    #notification
+    path('get_notifications/', views_user.get_notifications, name='get_notifications'),
+    path('send_notification/', views_user.send_notification, name='send_notification'),
 ]
 
 if settings.DEBUG:

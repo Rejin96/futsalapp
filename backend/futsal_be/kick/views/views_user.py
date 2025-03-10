@@ -6,7 +6,7 @@ from backend.futsal_be.kick.utilities.utilities_user import change_state,login_u
 from backend.futsal_be.kick.utilities.utilities_user import querydb,see_game_details_u,created_game_details_u
 from backend.futsal_be.kick.utilities.haversine import calculate_dist,show_using_hav
 from backend.futsal_be.kick.utilities.cosinealgo import recommend_players
-from backend.futsal_be.kick.utilities.utilities_user import show_recommended_players_u
+from backend.futsal_be.kick.utilities.utilities_user import show_recommended_players_u, get_notifications_u,send_notification_to_db
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
@@ -275,3 +275,50 @@ def recommend_players_view(request):
 
     except json.JSONDecodeError:
         return JsonResponse({"status":"error", "message": "Invalid JSON data!"})
+
+def get_notifications(request):
+    if request.method == "GET":
+        token = request.headers.get("Authorization", "").split(" ")[1]
+        try:
+            user_id_dict = decryptToken(token)
+            user_id = user_id_dict['user_id']
+            
+            result = get_notifications_u(user_id)
+            return JsonResponse(result)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "error", "message": "Invalid JSON data!"})
+
+def send_notification(request):
+    if request.method == "POST":
+        # Get the Authorization token
+        token = request.headers.get("Authorization", "").split(" ")[1]
+        
+        try:
+            # Decrypt the sender's token to get the sender_id
+            sender_id_dict = decryptToken(token)
+            sender_id = sender_id_dict['user_id']
+            
+            # Parse the JSON body of the request
+            try:
+                request_data = json.loads(request.body)
+                receiver_id = request_data.get("receiver_id")
+                message = request_data.get("message")
+                timestamp = request_data.get("timestamp", datetime.utcnow())  # Default to current UTC time if not provided
+            except json.JSONDecodeError:
+                return JsonResponse({"status": "error", "message": "Invalid JSON format!"})
+
+            if not receiver_id or not message:
+                return JsonResponse({"status": "error", "message": "Receiver ID and message are required!"})
+
+            # Call function in utilities_user.py to handle the notification logic
+            result = send_notification_to_db(sender_id, receiver_id, message, timestamp)
+            
+            return JsonResponse(result)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": f"An error occurred: {str(e)}"})
+
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid request method!"})
+

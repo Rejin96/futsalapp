@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:playerconnect/src/pages/game_details/created_game_details/created_game_details.dart';
 import 'package:playerconnect/src/pages/game_details/joined_game_details/joined_game_details.dart';
+import 'package:playerconnect/src/pages/notification_page/notificationpage.dart';
 import 'package:playerconnect/src/pages/playersearch/playersearch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:playerconnect/src/pages/create_request/create_request.dart';
@@ -188,11 +189,11 @@ class _My_HomePageState extends State<My_HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MapPage(),
+                  builder: (context) => Notificationpage(),
                 ),
               );
             },
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.notifications),
           ),
           IconButton(
             onPressed: () {
@@ -424,7 +425,7 @@ class _My_HomePageState extends State<My_HomePage> {
                       ),
                       _buildSteamStyledButton(
                         context,
-                        "Get player recommendations",
+                        "Player recommendations",
                         Icons.search,
                         () {
                           Navigator.push(
@@ -481,3 +482,4 @@ class _My_HomePageState extends State<My_HomePage> {
     );
   }
 }
+

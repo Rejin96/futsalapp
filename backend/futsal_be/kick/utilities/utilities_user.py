@@ -7,8 +7,9 @@ import bcrypt
 from sqlalchemy.exc import IntegrityError
 from backend.futsal_be.futsal_be.db_setup import Session_local
 from backend.futsal_be.kick.createToken import genToken
-from kick.models import User,FutsalLocation,TimeSlot,GameRequest,PlayerParticipation
+from kick.models import User,FutsalLocation,TimeSlot,GameRequest,PlayerParticipation,Notification
 from django.conf import settings
+from datetime import datetime
 
 
 def get_session():
@@ -505,6 +506,60 @@ def show_recommended_players_u(recommended_players_ids):
         # Log the error and return a detailed message
         print(f"Error occurred: {e}")
         return {"status": "error", "message": f"An error occurred: {e}"}
+    
+    finally:
+        session.close()
+
+def get_notifications_u(user_id):
+    session = get_session()
+    try:
+        notifications = session.query(Notification).filter_by(receiver_id=user_id).order_by(Notification.timestamp.desc()).all()
+        
+        if not notifications:
+            return {"status": "error", "message": "No notifications found."}
+
+        result = []
+        for notification in notifications:
+            result.append({
+                "notification_id": notification.notification_id,
+                "sender_id": notification.sender_id,
+                "message": notification.message,
+                "status": notification.status,  # Optionally mark as read/unread
+                "timestamp": str(notification.timestamp)
+            })
+        
+        return {"status": "success", "notifications": result}
+    
+    except Exception as e:
+        session.rollback()
+        return {"status": "error", "message": f"An error occurred: {str(e)}"}
+    
+    finally:
+        session.close()
+
+def send_notification_to_db(sender_id, receiver_id, message, timestamp):
+    # Ensure receiver_id and message are provided
+    if not receiver_id or not message:
+        return {"status": "error", "message": "Receiver ID and message are required!"}
+    
+    try:
+        # Create new notification in the database
+        session = get_session()
+        new_notification = Notification(
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            message=message,
+            timestamp=timestamp  # Accept timestamp from the request
+        )
+        
+        session.add(new_notification)
+        session.commit()
+        
+        return {"status": "success", "message": "Notification sent successfully!"}
+
+    except Exception as e:
+        session.rollback()
+        return {"status": "error", "message": f"An error occurred: {str(e)}"}
     
     finally:
         session.close()

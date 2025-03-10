@@ -21,6 +21,47 @@ class _PlayersearchState extends State<Playersearch> {
     fetchPlayers();
   }
 
+  Future<void> sendnotification(int receiver_id, String message) async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+    String? csrfToken = prefs.getString('csrf_token');
+    if (token == null || csrfToken == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Authentication token missing!')),
+      );
+      return;
+    }
+    try{
+      final response = await http.post(
+        Uri.parse(apiUrls["sendnotification"]!),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+          'Cookie': 'csrftoken=$csrfToken',
+        },
+        body: json.encode({
+          'receiver_id': receiver_id,
+          'message': message,
+        }),
+      );
+       if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['status'] == 'success') {
+          // Show success message or proceed with UI updates
+          print('Notification sent successfully');
+        } else {
+          // Handle failure response from backend
+          print('Error: ${responseData['message']}');
+        }
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+      }
+    }catch(e){
+        print('Error sending notification: $e');
+    }
+  }
+
   Future<void> fetchPlayers() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
@@ -58,6 +99,42 @@ class _PlayersearchState extends State<Playersearch> {
       });
     }
   }
+   String userName = "Guest";
+
+ Future<String?> loadUserData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('auth_token');
+
+  if (token == null) {
+    print('Token missing!');
+    return null; // Return null if token is missing
+  }
+
+  final response = await http.get(
+    Uri.parse(apiUrls["getplayer"]!), // Fetch logged-in player
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final responseData = json.decode(response.body);
+    final currentUser = responseData['user']; // Gets logged-in player details
+
+    // Check if user exists and return the name
+    if (currentUser != null) {
+      return currentUser['name'];
+    } else {
+      print('User data is missing');
+      return null; // Return null if user data is not found
+    }
+  } else {
+    print('Failed to load user data');
+    return null; // Return null if API call fails
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +245,11 @@ class _PlayersearchState extends State<Playersearch> {
                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () async{
+                                          String? userName = await loadUserData();
+                                          print(userName);
+                                          sendnotification(player['user_id'], '$userName has sent you compete request');
+                                        },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.redAccent,
                                           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -176,7 +257,11 @@ class _PlayersearchState extends State<Playersearch> {
                                         child: Text("Compete", style: TextStyle(color: Colors.white)),
                                       ),
                                       ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () async{
+                                           String? userName = await loadUserData();
+                                          print(userName);
+                                          sendnotification(player['user_id'], '$userName has sent you invite request');
+                                        },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.greenAccent,
                                           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),

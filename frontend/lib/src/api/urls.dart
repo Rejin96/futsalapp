@@ -18,4 +18,6 @@ const Map<String, String> apiUrls = {
   "createdgamedetails": "$baseUrl/created_game_details/",
   "handleparticipation": "$baseUrl/handleparticipation/",
   "playerrecommendation": "$baseUrl/recommend_players/",
+  "sendnotification": "$baseUrl/send_notification/",
+  "getnotifications": "$baseUrl/get_notifications/",
 };

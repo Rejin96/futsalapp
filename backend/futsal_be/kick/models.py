@@ -7,6 +7,8 @@ from sqlalchemy import Column, Integer, String,LargeBinary, ForeignKey, Enum, Da
 from sqlalchemy.orm import relationship
 from backend.futsal_be.futsal_be.db_setup import Base
 from sqlalchemy.dialects.mysql import LONGBLOB
+from datetime import datetime
+from sqlalchemy import Column, DateTime
 
 
 class User(Base):
@@ -61,3 +63,17 @@ class PlayerParticipation(Base):
     request_id = Column(Integer, ForeignKey('game_requests.request_id'))
     user_id = Column(Integer, ForeignKey('users.user_id'))
     status = Column(Enum('pending', 'confirmed', 'cancelled', name='participation_status'), default='pending')
+
+class Notification(Base):
+    __tablename__ = 'notifications'
+    
+    notification_id = Column(Integer, primary_key=True)
+    sender_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    receiver_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    message = Column(String(255), nullable=False)
+    status = Column(Enum('pending', 'accepted', 'rejected', name='notification_status'), default='pending')
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    
+    sender = relationship('User', foreign_keys=[sender_id])
+    receiver = relationship('User', foreign_keys=[receiver_id])
+
